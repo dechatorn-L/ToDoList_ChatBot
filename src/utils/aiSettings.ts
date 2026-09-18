@@ -18,7 +18,7 @@ export interface AISettings {
 export const DEFAULT_SETTINGS: AISettings = {
   provider: 'gemini',
   geminiKey: '',
-  geminiModel: 'gemini-2.0-flash',
+  geminiModel: 'gemini-3.6-flash',
   openaiKey: '',
   openaiModel: 'gpt-4o-mini',
   character: 'robot',
@@ -33,6 +33,13 @@ export function loadSettings(): AISettings {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) {
       const parsed = JSON.parse(raw);
+      // Automatically migrate deprecated gemini-2.0-flash to gemini-3.6-flash
+      if (
+        parsed.geminiModel === 'gemini-2.0-flash' ||
+        parsed.geminiModel === 'models/gemini-2.0-flash'
+      ) {
+        parsed.geminiModel = 'gemini-3.6-flash';
+      }
       return { ...DEFAULT_SETTINGS, ...parsed };
     }
   } catch {
@@ -57,7 +64,7 @@ export async function testConnection(
 
   try {
     if (isGemini) {
-      const model = settings.geminiModel || 'gemini-2.0-flash';
+      const model = settings.geminiModel || 'gemini-3.6-flash';
       const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}?key=${encodeURIComponent(key)}`;
       const res = await fetch(url);
       const data = await res.json();

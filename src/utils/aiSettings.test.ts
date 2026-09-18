@@ -41,12 +41,22 @@ describe('aiSettings', () => {
     expect(loaded.character).toBe('cat');
   });
 
-  it('defaults character to robot if missing in storage', () => {
+  it('defaults character to robot if missing in storage and uses gemini-3.6-flash', () => {
     localStorage.setItem('todolist_ai_settings', JSON.stringify({ provider: 'gemini' }));
     const loaded = loadSettings();
     expect(loaded.character).toBe('robot');
     expect(loaded.voiceMuted).toBe(false);
     expect(loaded.speechLanguage).toBe('th-TH');
+    expect(loaded.geminiModel).toBe('gemini-3.6-flash');
+  });
+
+  it('automatically migrates deprecated gemini-2.0-flash to gemini-3.6-flash', () => {
+    localStorage.setItem(
+      'todolist_ai_settings',
+      JSON.stringify({ provider: 'gemini', geminiModel: 'gemini-2.0-flash' })
+    );
+    const loaded = loadSettings();
+    expect(loaded.geminiModel).toBe('gemini-3.6-flash');
   });
 
   it('persists voiceMuted and speechLanguage settings', () => {

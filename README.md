@@ -138,7 +138,7 @@ The AI Dispatcher abstracts Google Gemini and OpenAI behind a deterministic tool
 
 | Provider | Supported Models | Test Ping Endpoint | Key Storage |
 |---|---|---|---|
-| **Google Gemini** | `gemini-2.0-flash` (Default), `gemini-1.5-flash`, `gemini-1.5-pro` | `GET /v1beta/models/{model}` (0 token cost) | Client `localStorage` |
+| **Google Gemini** | `gemini-3.6-flash` (Default), `gemini-2.5-flash`, `gemini-1.5-flash`, `gemini-1.5-pro` | `GET /v1beta/models/{model}` (0 token cost) | Client `localStorage` |
 | **OpenAI** | `gpt-4o-mini` (Default), `gpt-4o`, `gpt-3.5-turbo` | `GET /v1/models/{model}` (0 token cost) | Client `localStorage` |
 
 ---
@@ -214,7 +214,7 @@ npm run preview
 2. Choose your provider:
    - **Google Gemini**: Get a free API key at [Google AI Studio](https://aistudio.google.com/app/apikey).
    - **OpenAI**: Get an API key at [OpenAI Platform](https://platform.openai.com/api-keys).
-3. Select your model (defaults to `gemini-2.0-flash` or `gpt-4o-mini`).
+3. Select your model (defaults to `gemini-3.6-flash` or `gpt-4o-mini`).
 4. Click **"Test Connection"** to verify credentials instantly without burning generation tokens.
 5. Click **"Save Settings"**.
 6. Click the floating Mascot in the bottom-right corner to open the **AI Assistant Drawer**!

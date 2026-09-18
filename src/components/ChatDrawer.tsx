@@ -186,7 +186,7 @@ export const ChatDrawer: React.FC<ChatDrawerProps> = ({
                   {settings.character === 'cat' ? 'Milo the Cat' : settings.character === 'dog' ? 'Hachi the Shiba' : 'AI Task Assistant'}
                 </h2>
                 <p className="text-[11px] text-zinc-500 font-mono">
-                  {isGemini ? `Gemini (${settings.geminiModel || '2.0-flash'})` : `OpenAI (${settings.openaiModel || 'gpt-4o-mini'})`}
+                  {isGemini ? `Gemini (${settings.geminiModel || 'gemini-3.6-flash'})` : `OpenAI (${settings.openaiModel || 'gpt-4o-mini'})`}
                 </p>
               </div>
             </div>

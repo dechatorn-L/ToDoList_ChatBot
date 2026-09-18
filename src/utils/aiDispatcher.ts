@@ -251,7 +251,7 @@ export async function sendChatMessage(
 
   try {
     if (isGemini) {
-      const model = settings.geminiModel || 'gemini-2.0-flash';
+      const model = settings.geminiModel || 'gemini-3.6-flash';
       const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(key)}`;
 
       const geminiContents = messages.map((m) => ({

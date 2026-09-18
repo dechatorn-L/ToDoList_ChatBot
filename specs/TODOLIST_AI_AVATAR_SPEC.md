@@ -104,7 +104,7 @@ type AIProvider = 'gemini' | 'openai';
 interface AISettings {
   provider: AIProvider;
   geminiKey?: string;
-  geminiModel?: string; // default: gemini-2.0-flash
+  geminiModel?: string; // default: gemini-3.6-flash
   openaiKey?: string;
   openaiModel?: string; // default: gpt-4o-mini
   character: AvatarCharacter; // default: 'robot'

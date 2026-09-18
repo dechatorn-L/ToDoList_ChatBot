@@ -46,7 +46,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
   const isGemini = settings.provider === 'gemini';
   const currentKey = isGemini ? settings.geminiKey || '' : settings.openaiKey || '';
   const currentModel = isGemini
-    ? settings.geminiModel || 'gemini-2.0-flash'
+    ? settings.geminiModel || 'gemini-3.6-flash'
     : settings.openaiModel || 'gpt-4o-mini';
 
   const handleProviderChange = (provider: AIProvider) => {
@@ -238,7 +238,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
             >
               {isGemini ? (
                 <>
-                  <option value="gemini-2.0-flash">gemini-2.0-flash (Recommended)</option>
+                  <option value="gemini-3.6-flash">gemini-3.6-flash (Recommended)</option>
+                  <option value="gemini-2.5-flash">gemini-2.5-flash</option>
                   <option value="gemini-1.5-flash">gemini-1.5-flash</option>
                   <option value="gemini-1.5-pro">gemini-1.5-pro</option>
                 </>
