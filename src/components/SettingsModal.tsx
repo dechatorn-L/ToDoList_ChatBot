@@ -3,6 +3,7 @@ import {
   AISettings,
   AIProvider,
   AvatarCharacter,
+  SpeechLanguage,
   loadSettings,
   saveSettings,
   testConnection,
@@ -297,6 +298,54 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
                   </svg>
                 )}
               </button>
+            </div>
+          </div>
+
+          {/* Voice & Audio Preferences */}
+          <div className="pt-2 border-t border-zinc-100 space-y-3">
+            <h3 className="text-xs font-semibold text-zinc-700">Voice & Speech Interaction</h3>
+
+            <div className="flex items-center justify-between p-3 rounded-xl bg-zinc-50 border border-zinc-200/60">
+              <div>
+                <span className="text-xs font-semibold text-zinc-800 block">Voice Spoken Responses</span>
+                <span className="text-[11px] text-zinc-500">Play spoken voice audio when companion responds</span>
+              </div>
+              <button
+                type="button"
+                role="button"
+                aria-label="Toggle voice audio"
+                onClick={() => setSettings((prev) => ({ ...prev, voiceMuted: !(prev.voiceMuted ?? false) }))}
+                className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-hidden ${
+                  !settings.voiceMuted ? 'bg-teal-600' : 'bg-zinc-300'
+                }`}
+              >
+                <span
+                  className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out ${
+                    !settings.voiceMuted ? 'translate-x-5' : 'translate-x-0'
+                  }`}
+                />
+              </button>
+            </div>
+
+            <div>
+              <label htmlFor="voice-language" className="block text-xs font-semibold text-zinc-700 mb-1.5">
+                Voice Language
+              </label>
+              <select
+                id="voice-language"
+                aria-label="Voice Language"
+                value={settings.speechLanguage || 'th-TH'}
+                onChange={(e) =>
+                  setSettings((prev) => ({
+                    ...prev,
+                    speechLanguage: e.target.value as SpeechLanguage,
+                  }))
+                }
+                className="w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 text-xs text-zinc-800 focus:border-teal-500 focus:outline-hidden focus:ring-2 focus:ring-teal-500/20 cursor-pointer"
+              >
+                <option value="th-TH">Thai (th-TH)</option>
+                <option value="en-US">English (en-US)</option>
+              </select>
             </div>
           </div>
 

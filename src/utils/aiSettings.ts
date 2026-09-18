@@ -2,6 +2,8 @@ export type AIProvider = 'gemini' | 'openai';
 
 export type AvatarCharacter = 'robot' | 'cat' | 'dog';
 
+export type SpeechLanguage = 'th-TH' | 'en-US';
+
 export interface AISettings {
   provider: AIProvider;
   geminiKey?: string;
@@ -9,6 +11,8 @@ export interface AISettings {
   openaiKey?: string;
   openaiModel?: string;
   character?: AvatarCharacter;
+  voiceMuted?: boolean;
+  speechLanguage?: SpeechLanguage;
 }
 
 export const DEFAULT_SETTINGS: AISettings = {
@@ -18,6 +22,8 @@ export const DEFAULT_SETTINGS: AISettings = {
   openaiKey: '',
   openaiModel: 'gpt-4o-mini',
   character: 'robot',
+  voiceMuted: false,
+  speechLanguage: 'th-TH',
 };
 
 const STORAGE_KEY = 'todolist_ai_settings';

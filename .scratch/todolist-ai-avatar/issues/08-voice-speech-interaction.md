@@ -7,12 +7,12 @@ Users can manage tasks hands-free by speaking into their microphone using native
 06: Conversational Agent & Tool-Calling Dispatcher
 07: Avatar Character Personas & Customization Gallery
 
-**Status:** ready-for-agent
+**Status:** complete
 
-- [ ] Microphone button in Chat Drawer input bar starts native Speech-to-Text dictation.
-- [ ] Visual listening animation while recording and graceful fallback if microphone permission is denied or unsupported.
-- [ ] AI companion synthesizes speech and speaks out response text via Web SpeechSynthesis when audio is enabled.
-- [ ] Speaker Mute/Unmute toggle button in Chat Drawer header and Settings Modal.
-- [ ] Active speech immediately cancels (`speechSynthesis.cancel()`) upon mute, drawer close, or new voice input.
-- [ ] Speech language selection (Thai `th-TH` default, English `en-US`) configurable in Settings.
-- [ ] Automated tests verify speech recognition lifecycle, synthesis invocation, and mute behavior.
+- [x] Microphone button in Chat Drawer input bar starts native Speech-to-Text dictation.
+- [x] Visual listening animation while recording and graceful fallback if microphone permission is denied or unsupported.
+- [x] AI companion synthesizes speech and speaks out response text via Web SpeechSynthesis when audio is enabled.
+- [x] Speaker Mute/Unmute toggle button in Chat Drawer header and Settings Modal.
+- [x] Active speech immediately cancels (`speechSynthesis.cancel()`) upon mute, drawer close, or new voice input.
+- [x] Speech language selection (Thai `th-TH` default, English `en-US`) configurable in Settings.
+- [x] Automated tests verify speech recognition lifecycle, synthesis invocation, and mute behavior.

@@ -49,6 +49,12 @@ export const App: React.FC = () => {
     saveSettings(next);
   };
 
+  const handleVoiceMuteToggle = (voiceMuted: boolean) => {
+    const next = { ...aiSettings, voiceMuted };
+    setAiSettings(next);
+    saveSettings(next);
+  };
+
   const toolHandlers: ToolActionHandler = {
     createTask: (title, priority, dueDate) => {
       addTask(title, priority, dueDate);
@@ -126,6 +132,7 @@ export const App: React.FC = () => {
         onOpenSettings={() => setIsSettingsOpen(true)}
         onLoadingChange={setIsThinking}
         onCharacterChange={handleCharacterChange}
+        onVoiceMuteToggle={handleVoiceMuteToggle}
       />
 
       <SettingsModal isOpen={isSettingsOpen} onClose={handleCloseSettings} />

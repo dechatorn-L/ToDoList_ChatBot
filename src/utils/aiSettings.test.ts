@@ -45,6 +45,20 @@ describe('aiSettings', () => {
     localStorage.setItem('todolist_ai_settings', JSON.stringify({ provider: 'gemini' }));
     const loaded = loadSettings();
     expect(loaded.character).toBe('robot');
+    expect(loaded.voiceMuted).toBe(false);
+    expect(loaded.speechLanguage).toBe('th-TH');
+  });
+
+  it('persists voiceMuted and speechLanguage settings', () => {
+    const custom: AISettings = {
+      provider: 'gemini',
+      voiceMuted: true,
+      speechLanguage: 'en-US',
+    };
+    saveSettings(custom);
+    const loaded = loadSettings();
+    expect(loaded.voiceMuted).toBe(true);
+    expect(loaded.speechLanguage).toBe('en-US');
   });
 
   it('saves settings to localStorage under todolist_ai_settings', () => {

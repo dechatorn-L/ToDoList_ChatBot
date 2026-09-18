@@ -72,4 +72,28 @@ describe('SettingsModal', () => {
       expect(screen.getByText(/api key is required/i)).toBeDefined();
     });
   });
+
+  it('allows toggling voice audio mute and changing speech language', () => {
+    const handleClose = vi.fn();
+    render(<SettingsModal isOpen={true} onClose={handleClose} />);
+
+    // Check voice mute toggle
+    const muteToggle = screen.getByRole('button', { name: /toggle voice audio/i });
+    expect(muteToggle).toBeDefined();
+    fireEvent.click(muteToggle);
+
+    // Check language selector
+    const langSelect = screen.getByLabelText(/voice language/i) as HTMLSelectElement;
+    expect(langSelect.value).toBe('th-TH');
+    fireEvent.change(langSelect, { target: { value: 'en-US' } });
+    expect(langSelect.value).toBe('en-US');
+
+    // Save and verify storage
+    const saveBtn = screen.getByRole('button', { name: /save settings/i });
+    fireEvent.click(saveBtn);
+
+    const stored = JSON.parse(localStorage.getItem('todolist_ai_settings') || '{}');
+    expect(stored.voiceMuted).toBe(true);
+    expect(stored.speechLanguage).toBe('en-US');
+  });
 });

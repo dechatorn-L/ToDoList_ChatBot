@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Task } from '../hooks/useTasks';
 import { AISettings, AvatarCharacter } from '../utils/aiSettings';
+import { useVoiceSpeech } from '../hooks/useVoiceSpeech';
 import {
   ChatMessage,
   ToolActionHandler,
@@ -16,6 +17,7 @@ interface ChatDrawerProps {
   onOpenSettings: () => void;
   onLoadingChange?: (loading: boolean) => void;
   onCharacterChange?: (character: AvatarCharacter) => void;
+  onVoiceMuteToggle?: (muted: boolean) => void;
 }
 
 const INITIAL_MESSAGE: ChatMessage = {
@@ -39,10 +41,12 @@ export const ChatDrawer: React.FC<ChatDrawerProps> = ({
   onOpenSettings,
   onLoadingChange,
   onCharacterChange,
+  onVoiceMuteToggle,
 }) => {
   const [messages, setMessages] = useState<ChatMessage[]>([INITIAL_MESSAGE]);
   const [input, setInput] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [voiceError, setVoiceError] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
 
@@ -50,9 +54,24 @@ export const ChatDrawer: React.FC<ChatDrawerProps> = ({
   const activeKey = isGemini ? settings.geminiKey : settings.openaiKey;
   const isKeyMissing = !activeKey || activeKey.trim() === '';
 
+  const voice = useVoiceSpeech({
+    language: settings.speechLanguage || 'th-TH',
+    isMuted: settings.voiceMuted ?? false,
+    onTranscript: (transcript) => {
+      setInput(transcript);
+    },
+    onError: (err) => {
+      setVoiceError(err);
+      setTimeout(() => setVoiceError(null), 4000);
+    },
+  });
+
   useEffect(() => {
     if (isOpen) {
       setTimeout(() => inputRef.current?.focus(), 100);
+    } else {
+      voice.cancelSpeech();
+      voice.stopListening();
     }
   }, [isOpen]);
 
@@ -74,16 +93,18 @@ export const ChatDrawer: React.FC<ChatDrawerProps> = ({
     const trimmed = userText.trim();
     if (!trimmed || isLoading) return;
 
+    voice.cancelSpeech();
+
     const userMessage: ChatMessage = { role: 'user', content: trimmed };
-    const newHistory = [...messages, userMessage];
-    setMessages(newHistory);
+    const updatedMessages = [...messages, userMessage];
+    setMessages(updatedMessages);
     setInput('');
     setIsLoading(true);
     onLoadingChange?.(true);
 
     try {
       const result = await sendChatMessage(
-        newHistory,
+        updatedMessages,
         tasks,
         settings,
         handlers
@@ -96,6 +117,10 @@ export const ChatDrawer: React.FC<ChatDrawerProps> = ({
       };
 
       setMessages((prev) => [...prev, botMessage]);
+
+      if (!settings.voiceMuted && result.reply) {
+        voice.speak(result.reply);
+      }
     } finally {
       setIsLoading(false);
       onLoadingChange?.(false);
@@ -203,6 +228,41 @@ export const ChatDrawer: React.FC<ChatDrawerProps> = ({
                   Dog
                 </button>
               </div>
+
+              {/* Speaker Mute/Unmute Toggle */}
+              <button
+                type="button"
+                onClick={() => {
+                  const nextMuted = !(settings.voiceMuted ?? false);
+                  if (nextMuted) {
+                    voice.cancelSpeech();
+                  }
+                  onVoiceMuteToggle?.(nextMuted);
+                }}
+                aria-label={settings.voiceMuted ? 'Unmute voice audio' : 'Mute voice audio'}
+                title={settings.voiceMuted ? 'Unmute voice' : 'Mute voice'}
+                className={`rounded-lg p-1.5 transition-colors cursor-pointer ${
+                  settings.voiceMuted
+                    ? 'text-zinc-400 hover:text-zinc-600 hover:bg-zinc-100'
+                    : 'text-teal-600 bg-teal-50 hover:bg-teal-100'
+                }`}
+              >
+                {settings.voiceMuted ? (
+                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="1" y1="1" x2="23" y2="23" />
+                    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+                    <line x1="23" y1="9" x2="17" y2="15" />
+                    <line x1="17" y1="9" x2="23" y2="15" />
+                  </svg>
+                ) : (
+                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+                    <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+                    <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
+                  </svg>
+                )}
+              </button>
+
               <button
                 type="button"
                 onClick={onOpenSettings}
@@ -342,8 +402,45 @@ export const ChatDrawer: React.FC<ChatDrawerProps> = ({
                 onChange={(e) => setInput(e.target.value)}
                 placeholder="Ask me to add, complete, or organize tasks..."
                 disabled={isLoading}
-                className="w-full rounded-xl border border-zinc-200 bg-white px-3.5 py-2.5 pr-12 text-xs text-zinc-800 placeholder:text-zinc-400 focus:border-teal-500 focus:outline-hidden focus:ring-2 focus:ring-teal-500/20 disabled:opacity-50"
+                className="w-full rounded-xl border border-zinc-200 bg-white px-3.5 py-2.5 pr-20 text-xs text-zinc-800 placeholder:text-zinc-400 focus:border-teal-500 focus:outline-hidden focus:ring-2 focus:ring-teal-500/20 disabled:opacity-50"
               />
+
+              {/* Listening Indicator Overlay */}
+              {voice.isListening && (
+                <div className="absolute left-3.5 flex items-center gap-1.5 text-[11px] font-medium text-rose-600 bg-white/95 pr-2 pointer-events-none">
+                  <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping" />
+                  <span>Listening...</span>
+                </div>
+              )}
+
+              {/* Microphone Dictation Button */}
+              <button
+                type="button"
+                onClick={() => {
+                  if (voice.isListening) {
+                    voice.stopListening();
+                  } else {
+                    voice.startListening();
+                  }
+                }}
+                disabled={isLoading}
+                aria-label={voice.isListening ? 'Stop voice input' : 'Start voice input'}
+                title={voice.isListening ? 'Listening... Click to stop' : 'Start voice input'}
+                className={`absolute right-10 rounded-lg p-2 transition-all cursor-pointer ${
+                  voice.isListening
+                    ? 'bg-rose-500 text-white animate-pulse shadow-xs ring-2 ring-rose-300'
+                    : 'text-zinc-400 hover:text-zinc-600 hover:bg-zinc-100'
+                }`}
+              >
+                <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z" />
+                  <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+                  <line x1="12" y1="19" x2="12" y2="23" />
+                  <line x1="8" y1="23" x2="16" y2="23" />
+                </svg>
+              </button>
+
+              {/* Send Button */}
               <button
                 type="submit"
                 disabled={isLoading || !input.trim()}
@@ -356,6 +453,12 @@ export const ChatDrawer: React.FC<ChatDrawerProps> = ({
                 </svg>
               </button>
             </div>
+
+            {voiceError && (
+              <p className="mt-2 text-[11px] text-rose-500 font-medium leading-tight">
+                {voiceError}
+              </p>
+            )}
           </form>
         </div>
       </div>
