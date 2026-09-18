@@ -1,11 +1,14 @@
 export type AIProvider = 'gemini' | 'openai';
 
+export type AvatarCharacter = 'robot' | 'cat' | 'dog';
+
 export interface AISettings {
   provider: AIProvider;
   geminiKey?: string;
   geminiModel?: string;
   openaiKey?: string;
   openaiModel?: string;
+  character?: AvatarCharacter;
 }
 
 export const DEFAULT_SETTINGS: AISettings = {
@@ -14,6 +17,7 @@ export const DEFAULT_SETTINGS: AISettings = {
   geminiModel: 'gemini-2.0-flash',
   openaiKey: '',
   openaiModel: 'gpt-4o-mini',
+  character: 'robot',
 };
 
 const STORAGE_KEY = 'todolist_ai_settings';

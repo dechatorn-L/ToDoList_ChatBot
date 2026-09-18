@@ -9,7 +9,7 @@ import { SettingsModal } from './components/SettingsModal';
 import { ChatDrawer } from './components/ChatDrawer';
 import { useAvatarState } from './hooks/useAvatarState';
 import { isOverdue } from './utils/date';
-import { loadSettings, AISettings } from './utils/aiSettings';
+import { loadSettings, saveSettings, AISettings, AvatarCharacter } from './utils/aiSettings';
 import { ToolActionHandler } from './utils/aiDispatcher';
 
 export const App: React.FC = () => {
@@ -41,6 +41,12 @@ export const App: React.FC = () => {
   const handleCloseSettings = () => {
     setIsSettingsOpen(false);
     setAiSettings(loadSettings());
+  };
+
+  const handleCharacterChange = (character: AvatarCharacter) => {
+    const next = { ...aiSettings, character };
+    setAiSettings(next);
+    saveSettings(next);
   };
 
   const toolHandlers: ToolActionHandler = {
@@ -106,6 +112,7 @@ export const App: React.FC = () => {
 
       <AvatarWidget
         mood={mood}
+        character={aiSettings.character}
         onWakeUp={wakeUp}
         onClick={() => setIsChatOpen((prev) => !prev)}
       />
@@ -118,6 +125,7 @@ export const App: React.FC = () => {
         handlers={toolHandlers}
         onOpenSettings={() => setIsSettingsOpen(true)}
         onLoadingChange={setIsThinking}
+        onCharacterChange={handleCharacterChange}
       />
 
       <SettingsModal isOpen={isSettingsOpen} onClose={handleCloseSettings} />

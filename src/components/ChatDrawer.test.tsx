@@ -142,4 +142,42 @@ describe('ChatDrawer', () => {
     fireEvent.keyDown(window, { key: 'Escape' });
     expect(handleClose).toHaveBeenCalledTimes(1);
   });
+
+  it('triggers onCharacterChange when clicking character switcher pills', () => {
+    const handleCharacterChange = vi.fn();
+    const { rerender } = render(
+      <ChatDrawer
+        isOpen={true}
+        onClose={vi.fn()}
+        tasks={mockTasks}
+        settings={{ ...mockSettings, character: 'robot' }}
+        handlers={mockHandlers}
+        onOpenSettings={vi.fn()}
+        onCharacterChange={handleCharacterChange}
+      />
+    );
+
+    expect(screen.getByText('AI Task Assistant')).toBeDefined();
+
+    const catBtn = screen.getByRole('button', { name: 'Cat' });
+    fireEvent.click(catBtn);
+    expect(handleCharacterChange).toHaveBeenCalledWith('cat');
+
+    rerender(
+      <ChatDrawer
+        isOpen={true}
+        onClose={vi.fn()}
+        tasks={mockTasks}
+        settings={{ ...mockSettings, character: 'cat' }}
+        handlers={mockHandlers}
+        onOpenSettings={vi.fn()}
+        onCharacterChange={handleCharacterChange}
+      />
+    );
+    expect(screen.getByText('Milo the Cat')).toBeDefined();
+
+    const dogBtn = screen.getByRole('button', { name: 'Dog' });
+    fireEvent.click(dogBtn);
+    expect(handleCharacterChange).toHaveBeenCalledWith('dog');
+  });
 });

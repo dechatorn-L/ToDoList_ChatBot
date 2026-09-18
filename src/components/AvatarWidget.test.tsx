@@ -26,4 +26,15 @@ describe('AvatarWidget', () => {
     expect(handleWakeUp).toHaveBeenCalledTimes(1);
     expect(handleClick).toHaveBeenCalledTimes(1);
   });
+
+  it('renders specific character persona based on character prop', () => {
+    const { rerender } = render(<AvatarWidget mood="neutral" character="robot" />);
+    expect(screen.getByTestId('avatar-persona-robot')).toBeDefined();
+
+    rerender(<AvatarWidget mood="neutral" character="cat" />);
+    expect(screen.getByTestId('avatar-persona-cat')).toBeDefined();
+
+    rerender(<AvatarWidget mood="neutral" character="dog" />);
+    expect(screen.getByTestId('avatar-persona-dog')).toBeDefined();
+  });
 });

@@ -29,6 +29,7 @@ describe('aiSettings', () => {
       openaiModel: 'gpt-4o',
       geminiKey: 'gm-test-456',
       geminiModel: 'gemini-2.0-flash',
+      character: 'cat',
     };
     localStorage.setItem('todolist_ai_settings', JSON.stringify(custom));
 
@@ -37,6 +38,13 @@ describe('aiSettings', () => {
     expect(loaded.openaiKey).toBe('sk-test-123');
     expect(loaded.openaiModel).toBe('gpt-4o');
     expect(loaded.geminiKey).toBe('gm-test-456');
+    expect(loaded.character).toBe('cat');
+  });
+
+  it('defaults character to robot if missing in storage', () => {
+    localStorage.setItem('todolist_ai_settings', JSON.stringify({ provider: 'gemini' }));
+    const loaded = loadSettings();
+    expect(loaded.character).toBe('robot');
   });
 
   it('saves settings to localStorage under todolist_ai_settings', () => {

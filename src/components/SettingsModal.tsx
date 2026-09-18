@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {
   AISettings,
   AIProvider,
+  AvatarCharacter,
   loadSettings,
   saveSettings,
   testConnection,
@@ -52,6 +53,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
     setTestState({ loading: false });
   };
 
+  const handleCharacterChange = (character: AvatarCharacter) => {
+    setSettings((prev) => ({ ...prev, character }));
+  };
+
   const handleKeyChange = (val: string) => {
     setSettings((prev) =>
       isGemini ? { ...prev, geminiKey: val } : { ...prev, openaiKey: val }
@@ -89,7 +94,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <div className="relative w-full max-w-md rounded-2xl border border-zinc-200 bg-white p-6 shadow-2xl transition-all">
+      <div className="relative w-full max-w-md rounded-2xl border border-zinc-200 bg-white p-6 shadow-2xl transition-all max-h-[90vh] overflow-y-auto">
         {/* Modal Header */}
         <div className="flex items-center justify-between pb-4 border-b border-zinc-100">
           <div>
@@ -97,7 +102,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
               AI Settings
             </h2>
             <p className="text-xs text-zinc-500 mt-0.5">
-              API keys are stored strictly in your browser.
+              API keys and preferences are stored strictly in your browser.
             </p>
           </div>
           <button
@@ -115,6 +120,79 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
 
         {/* Modal Body */}
         <div className="mt-5 space-y-4">
+          {/* Avatar Character Gallery */}
+          <div>
+            <label className="block text-xs font-semibold text-zinc-700 mb-1.5">
+              Avatar Companion Persona
+            </label>
+            <div className="grid grid-cols-3 gap-2">
+              <button
+                type="button"
+                onClick={() => handleCharacterChange('robot')}
+                className={`flex flex-col items-center justify-center rounded-xl p-2.5 border transition-all cursor-pointer ${
+                  settings.character === 'robot'
+                    ? 'border-teal-500 bg-teal-50/60 shadow-xs ring-2 ring-teal-500/20'
+                    : 'border-zinc-200 hover:border-zinc-300 hover:bg-zinc-50'
+                }`}
+              >
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-teal-100/60 text-teal-700 mb-1.5">
+                  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="3" y="11" width="18" height="10" rx="2" />
+                    <circle cx="12" cy="5" r="2" />
+                    <path d="M12 7v4" />
+                    <line x1="8" y1="16" x2="8" y2="16" />
+                    <line x1="16" y1="16" x2="16" y2="16" />
+                  </svg>
+                </div>
+                <span className="text-[11px] font-semibold text-zinc-800">Robot</span>
+                <span className="text-[9px] text-zinc-400">Classic</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleCharacterChange('cat')}
+                className={`flex flex-col items-center justify-center rounded-xl p-2.5 border transition-all cursor-pointer ${
+                  settings.character === 'cat'
+                    ? 'border-orange-500 bg-orange-50/60 shadow-xs ring-2 ring-orange-500/20'
+                    : 'border-zinc-200 hover:border-zinc-300 hover:bg-zinc-50'
+                }`}
+              >
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-orange-100/60 text-orange-700 mb-1.5">
+                  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <polygon points="4,7 8,2 12,6" />
+                    <polygon points="20,7 16,2 12,6" />
+                    <circle cx="12" cy="13" r="8" />
+                    <circle cx="9" cy="12" r="1" fill="currentColor" />
+                    <circle cx="15" cy="12" r="1" fill="currentColor" />
+                  </svg>
+                </div>
+                <span className="text-[11px] font-semibold text-zinc-800">Orange Cat</span>
+                <span className="text-[9px] text-zinc-400">Playful</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleCharacterChange('dog')}
+                className={`flex flex-col items-center justify-center rounded-xl p-2.5 border transition-all cursor-pointer ${
+                  settings.character === 'dog'
+                    ? 'border-amber-500 bg-amber-50/60 shadow-xs ring-2 ring-amber-500/20'
+                    : 'border-zinc-200 hover:border-zinc-300 hover:bg-zinc-50'
+                }`}
+              >
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-100/60 text-amber-700 mb-1.5">
+                  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M10 5.172a2 2 0 00-1.414.586L6.414 7.93A2 2 0 005.828 9.344V12a2 2 0 002 2h10a2 2 0 002-2V9.343a2 2 0 00-.586-1.414l-2.172-2.172A2 2 0 0014.828 5.172H10z" />
+                    <circle cx="9" cy="10" r="1" fill="currentColor" />
+                    <circle cx="15" cy="10" r="1" fill="currentColor" />
+                    <ellipse cx="12" cy="13" rx="1.5" ry="1" fill="currentColor" />
+                  </svg>
+                </div>
+                <span className="text-[11px] font-semibold text-zinc-800">Shiba Dog</span>
+                <span className="text-[9px] text-zinc-400">Loyal</span>
+              </button>
+            </div>
+          </div>
+
           {/* Provider Selection Tabs */}
           <div>
             <label className="block text-xs font-semibold text-zinc-700 mb-1.5">

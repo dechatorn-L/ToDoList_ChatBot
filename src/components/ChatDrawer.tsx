@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Task } from '../hooks/useTasks';
-import { AISettings } from '../utils/aiSettings';
+import { AISettings, AvatarCharacter } from '../utils/aiSettings';
 import {
   ChatMessage,
   ToolActionHandler,
@@ -15,6 +15,7 @@ interface ChatDrawerProps {
   handlers: ToolActionHandler;
   onOpenSettings: () => void;
   onLoadingChange?: (loading: boolean) => void;
+  onCharacterChange?: (character: AvatarCharacter) => void;
 }
 
 const INITIAL_MESSAGE: ChatMessage = {
@@ -37,6 +38,7 @@ export const ChatDrawer: React.FC<ChatDrawerProps> = ({
   handlers,
   onOpenSettings,
   onLoadingChange,
+  onCharacterChange,
 }) => {
   const [messages, setMessages] = useState<ChatMessage[]>([INITIAL_MESSAGE]);
   const [input, setInput] = useState<string>('');
@@ -121,24 +123,86 @@ export const ChatDrawer: React.FC<ChatDrawerProps> = ({
           {/* Header */}
           <div className="flex items-center justify-between border-b border-zinc-100 px-5 py-4 bg-zinc-50/50">
             <div className="flex items-center gap-2.5">
-              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-teal-50 border border-teal-200/80 text-teal-600">
-                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <rect x="3" y="11" width="18" height="10" rx="2" />
-                  <circle cx="12" cy="5" r="2" />
-                  <path d="M12 7v4" />
-                  <line x1="8" y1="16" x2="8" y2="16" strokeWidth="2.5" />
-                  <line x1="16" y1="16" x2="16" y2="16" strokeWidth="2.5" />
-                </svg>
+              <div className={`flex h-9 w-9 items-center justify-center rounded-xl border ${
+                settings.character === 'cat'
+                  ? 'bg-orange-50 border-orange-200 text-orange-600'
+                  : settings.character === 'dog'
+                  ? 'bg-amber-50 border-amber-200 text-amber-600'
+                  : 'bg-teal-50 border-teal-200/80 text-teal-600'
+              }`}>
+                {settings.character === 'cat' ? (
+                  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="#EA580C" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <polygon points="4,7 8,2 12,6" />
+                    <polygon points="20,7 16,2 12,6" />
+                    <circle cx="12" cy="13" r="7" fill="#FED7AA" />
+                    <circle cx="9" cy="12" r="1" fill="#7C2D12" />
+                    <circle cx="15" cy="12" r="1" fill="#7C2D12" />
+                  </svg>
+                ) : settings.character === 'dog' ? (
+                  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="#B45309" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <polygon points="4,8 8,3 12,7" />
+                    <polygon points="20,8 16,3 12,7" />
+                    <circle cx="12" cy="13" r="7" fill="#FBBF24" />
+                    <circle cx="9" cy="12" r="1" fill="#451A03" />
+                    <circle cx="15" cy="12" r="1" fill="#451A03" />
+                  </svg>
+                ) : (
+                  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="3" y="11" width="18" height="10" rx="2" />
+                    <circle cx="12" cy="5" r="2" />
+                    <path d="M12 7v4" />
+                    <line x1="8" y1="16" x2="8" y2="16" strokeWidth="2.5" />
+                    <line x1="16" y1="16" x2="16" y2="16" strokeWidth="2.5" />
+                  </svg>
+                )}
               </div>
               <div>
-                <h2 className="text-sm font-bold text-zinc-900">AI Task Assistant</h2>
+                <h2 className="text-sm font-bold text-zinc-900">
+                  {settings.character === 'cat' ? 'Milo the Cat' : settings.character === 'dog' ? 'Hachi the Shiba' : 'AI Task Assistant'}
+                </h2>
                 <p className="text-[11px] text-zinc-500 font-mono">
                   {isGemini ? `Gemini (${settings.geminiModel || '2.0-flash'})` : `OpenAI (${settings.openaiModel || 'gpt-4o-mini'})`}
                 </p>
               </div>
             </div>
 
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1.5">
+              {/* Quick Persona Switcher */}
+              <div className="flex items-center gap-0.5 rounded-lg bg-zinc-100 p-0.5 border border-zinc-200/60" aria-label="Character Switcher">
+                <button
+                  type="button"
+                  onClick={() => onCharacterChange?.('robot')}
+                  className={`px-1.5 py-0.5 text-[10px] rounded transition-colors cursor-pointer ${
+                    settings.character === 'robot'
+                      ? 'bg-white text-teal-700 font-semibold shadow-xs'
+                      : 'text-zinc-500 hover:text-zinc-800'
+                  }`}
+                >
+                  Bot
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onCharacterChange?.('cat')}
+                  className={`px-1.5 py-0.5 text-[10px] rounded transition-colors cursor-pointer ${
+                    settings.character === 'cat'
+                      ? 'bg-white text-orange-700 font-semibold shadow-xs'
+                      : 'text-zinc-500 hover:text-zinc-800'
+                  }`}
+                >
+                  Cat
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onCharacterChange?.('dog')}
+                  className={`px-1.5 py-0.5 text-[10px] rounded transition-colors cursor-pointer ${
+                    settings.character === 'dog'
+                      ? 'bg-white text-amber-700 font-semibold shadow-xs'
+                      : 'text-zinc-500 hover:text-zinc-800'
+                  }`}
+                >
+                  Dog
+                </button>
+              </div>
               <button
                 type="button"
                 onClick={onOpenSettings}
