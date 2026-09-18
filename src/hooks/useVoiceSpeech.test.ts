@@ -172,4 +172,55 @@ describe('useVoiceSpeech', () => {
     expect(mockSpeechSynthesis.cancel).toHaveBeenCalled();
     expect(result.current.isSpeaking).toBe(false);
   });
+
+  it('assigns matching Thai voice to utterance.voice when Thai voice exists', () => {
+    const thaiVoice = { name: 'Microsoft Premwadee', lang: 'th-TH', default: false };
+    const englishVoice = { name: 'Google US English', lang: 'en-US', default: true };
+    mockSpeechSynthesis.getVoices.mockReturnValue([thaiVoice, englishVoice]);
+
+    const { result } = renderHook(() => useVoiceSpeech({ isMuted: false, language: 'th-TH' }));
+
+    act(() => {
+      result.current.speak('สวัสดีครับ มีอะไรให้ช่วยไหม');
+    });
+
+    expect(mockSpeechSynthesis.speak).toHaveBeenCalledTimes(1);
+    const utteranceArg = mockSpeechSynthesis.speak.mock.calls[0][0];
+    expect(utteranceArg.voice).toEqual(thaiVoice);
+    expect(utteranceArg.lang).toBe('th-TH');
+  });
+
+  it('selects best natural English voice when speaking English text', () => {
+    const legacyVoice = { name: 'Microsoft David Desktop', lang: 'en-US', default: true };
+    const naturalVoice = { name: 'Microsoft Jenny Natural', lang: 'en-US', default: false };
+    mockSpeechSynthesis.getVoices.mockReturnValue([legacyVoice, naturalVoice]);
+
+    const { result } = renderHook(() => useVoiceSpeech({ isMuted: false, language: 'en-US' }));
+
+    act(() => {
+      result.current.speak('Task completed successfully');
+    });
+
+    expect(mockSpeechSynthesis.speak).toHaveBeenCalledTimes(1);
+    const utteranceArg = mockSpeechSynthesis.speak.mock.calls[0][0];
+    expect(utteranceArg.voice).toEqual(naturalVoice);
+  });
+
+  it('prevents sending Thai text to English voice engine when no Thai voice is installed', () => {
+    const englishVoice = { name: 'Microsoft David Desktop', lang: 'en-US', default: true };
+    mockSpeechSynthesis.getVoices.mockReturnValue([englishVoice]);
+
+    const onError = vi.fn();
+    const { result } = renderHook(() =>
+      useVoiceSpeech({ isMuted: false, language: 'th-TH', onError })
+    );
+
+    act(() => {
+      result.current.speak('สวัสดีครับ');
+    });
+
+    // Should NOT send Thai text to English voice engine (which causes alien gibberish)
+    expect(mockSpeechSynthesis.speak).not.toHaveBeenCalled();
+    expect(onError).toHaveBeenCalledWith(expect.stringContaining('Thai'));
+  });
 });

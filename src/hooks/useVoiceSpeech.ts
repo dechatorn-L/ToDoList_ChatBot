@@ -41,6 +41,7 @@ export const useVoiceSpeech = (options: UseVoiceSpeechOptions = {}): UseVoiceSpe
   const [isListening, setIsListening] = useState<boolean>(false);
   const [isSpeaking, setIsSpeaking] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const [voices, setVoices] = useState<any[]>([]);
 
   const recognitionRef = useRef<any>(null);
   const onTranscriptRef = useRef(onTranscript);
@@ -48,6 +49,25 @@ export const useVoiceSpeech = (options: UseVoiceSpeechOptions = {}): UseVoiceSpe
 
   onTranscriptRef.current = onTranscript;
   onErrorRef.current = onError;
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || !window.speechSynthesis) return;
+
+    const loadVoices = () => {
+      const list = window.speechSynthesis.getVoices?.() || [];
+      if (list.length > 0) {
+        setVoices(list);
+      }
+    };
+
+    loadVoices();
+    window.speechSynthesis.onvoiceschanged = loadVoices;
+    return () => {
+      if (window.speechSynthesis) {
+        window.speechSynthesis.onvoiceschanged = null;
+      }
+    };
+  }, []);
 
   const SpeechRecognitionClass =
     typeof window !== 'undefined'
@@ -156,8 +176,46 @@ export const useVoiceSpeech = (options: UseVoiceSpeechOptions = {}): UseVoiceSpe
 
       if (typeof (window as any).SpeechSynthesisUtterance === 'undefined') return;
 
+      // Smart language detection from content
+      const hasThaiChars = /[\u0E00-\u0E7F]/.test(cleanText);
+      const targetLanguage = hasThaiChars ? 'th-TH' : language || 'en-US';
+
+      const allVoices = voices.length > 0 ? voices : window.speechSynthesis.getVoices?.() || [];
+      let matchedVoice: any = null;
+
+      if (targetLanguage.startsWith('th')) {
+        matchedVoice = allVoices.find(
+          (v: any) =>
+            v.lang?.toLowerCase().startsWith('th') ||
+            v.lang?.toLowerCase().replace('_', '-').startsWith('th')
+        );
+
+        if (!matchedVoice && allVoices.length > 0 && hasThaiChars) {
+          const warnMsg =
+            'ไม่พบเสียงภาษาไทย (Thai TTS voice) ในเครื่อง กรุณาติดตั้ง Thai Speech Pack ในระบบปฏิบัติการ';
+          setError(warnMsg);
+          onErrorRef.current?.(warnMsg);
+          return;
+        }
+      } else {
+        matchedVoice =
+          allVoices.find(
+            (v: any) =>
+              v.lang?.toLowerCase().startsWith('en') &&
+              (v.name?.includes('Natural') || v.name?.includes('Google') || v.name?.includes('Online'))
+          ) ||
+          allVoices.find((v: any) => v.lang?.toLowerCase().startsWith('en')) ||
+          allVoices.find((v: any) => v.default);
+      }
+
       const utterance = new (window as any).SpeechSynthesisUtterance(cleanText);
-      utterance.lang = language;
+      if (matchedVoice) {
+        utterance.voice = matchedVoice;
+        utterance.lang = matchedVoice.lang || targetLanguage;
+      } else {
+        utterance.lang = targetLanguage;
+      }
+
       utterance.rate = 1.0;
       utterance.pitch = 1.0;
 
@@ -167,7 +225,7 @@ export const useVoiceSpeech = (options: UseVoiceSpeechOptions = {}): UseVoiceSpe
 
       window.speechSynthesis.speak(utterance);
     },
-    [isMuted, language]
+    [isMuted, language, voices]
   );
 
   useEffect(() => {
