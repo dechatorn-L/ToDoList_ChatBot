@@ -1,0 +1,18 @@
+@import "tailwindcss";
+
+:root {
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --color-primary: #0D9488;
+  --color-secondary: #14B8A6;
+  --color-accent: #EA580C;
+  --color-background: #F0FDFA;
+  --color-foreground: #134E4A;
+  --color-border: #99F6E4;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #FAFAFA;
+  color: #18181B;
+}
